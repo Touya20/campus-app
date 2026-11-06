@@ -1,0 +1,1 @@
+import {Notice} from '../ui/Ui';export function ResourceState({loading,error}:{loading:boolean;error:string}){if(loading)return <div className="rounded-xl border border-slate-200 bg-white p-8 text-center text-sm text-slate-500" role="status">Loading campus information…</div>;if(error)return <Notice>{error}</Notice>;return null}

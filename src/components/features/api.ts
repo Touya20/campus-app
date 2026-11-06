@@ -1,0 +1,33 @@
+import {request} from '../../lib/axios.js';
+export const api={
+  register:(input:unknown)=>request<unknown>('/auth/register',{method:'POST',body:JSON.stringify(input)}),
+  login:(email:string,password:string)=>request<unknown>('/auth/login',{method:'POST',body:JSON.stringify({email,password})}),
+  me:()=>request<unknown>('/auth/me'),
+  logout:()=>request<unknown>('/auth/logout',{method:'POST'}),
+  dashboard:()=>request<unknown>('/dashboard'),
+  upcoming:()=>request<unknown>('/dashboard/upcoming'),
+  recentAnnouncements:()=>request<unknown>('/dashboard/recent-announcements'),
+  courses:(params='')=>request<unknown>('/courses'+params),
+  course:(id:string)=>request<unknown>('/courses/'+encodeURIComponent(id)),
+  modules:(id:string)=>request<unknown>('/courses/'+encodeURIComponent(id)+'/modules'),
+  materials:(id:string)=>request<unknown>('/courses/'+encodeURIComponent(id)+'/materials'),
+  assignments:(params='')=>request<unknown>('/assignments'+params),
+  upcomingAssignments:()=>request<unknown>('/assignments/upcoming'),
+  assignment:(id:string)=>request<unknown>('/assignments/'+encodeURIComponent(id)),
+  draft:(id:string)=>request<unknown>('/assignments/'+encodeURIComponent(id)+'/drafts'),
+  saveDraft:(id:string,content:string)=>request<unknown>('/assignments/'+encodeURIComponent(id)+'/drafts',{method:'POST',body:JSON.stringify({content})}),
+  updateDraft:(id:string,content:string)=>request<unknown>('/drafts/'+encodeURIComponent(id),{method:'PATCH',body:JSON.stringify({content})}),
+  deleteDraft:(id:string)=>request<unknown>('/drafts/'+encodeURIComponent(id),{method:'DELETE'}),
+  submit:(id:string,content:string)=>request<unknown>('/assignments/'+encodeURIComponent(id)+'/submissions',{method:'POST',body:JSON.stringify({content})}),
+  mySubmission:(id:string)=>request<unknown>('/assignments/'+encodeURIComponent(id)+'/submissions/me'),
+  schedule:(weekOf?:string)=>request<unknown>('/schedule/week'+(weekOf?'?weekOf='+encodeURIComponent(weekOf):'')),
+  grades:()=>request<unknown>('/grades'),
+  courseGrades:(id:string)=>request<unknown>('/grades/'+encodeURIComponent(id)),
+  gradeSummary:()=>request<unknown>('/grades/summary'),
+  announcements:(params='')=>request<unknown>('/announcements'+params),
+  announcement:(id:string)=>request<unknown>('/announcements/'+encodeURIComponent(id)),
+  markRead:(id:string)=>request<unknown>('/announcements/'+encodeURIComponent(id)+'/read',{method:'POST'}),
+  profile:()=>request<unknown>('/students/me'),
+  updateProfile:(input:unknown)=>request<unknown>('/students/me',{method:'PATCH',body:JSON.stringify(input)})
+};
+

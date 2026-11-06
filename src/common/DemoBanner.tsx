@@ -1,0 +1,1 @@
+export function DemoBanner(){return <div className="mb-5 flex items-start gap-3 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900"><span className="font-bold">DEMO</span><span>Sample preview data is shown here. It is not saved to your campus account.</span></div>}
