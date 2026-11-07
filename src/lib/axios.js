@@ -7,7 +7,7 @@ export class ApiError extends Error {
 export const setAccessToken = (value) => { accessToken = value }
 export const getCampusTimeZone = () => timeZone || 'Asia/Manila'
 const baseURL = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:7000/api/v1').replace(/\/+$/, '')
-const client = axios.create({ baseURL, headers: { Accept: 'application/json' } })
+const client = axios.create({ baseURL, timeout: 12000, headers: { Accept: 'application/json' } })
 client.interceptors.request.use((config) => {
   if (accessToken) config.headers.Authorization = 'Bearer ' + accessToken
   else delete config.headers.Authorization
