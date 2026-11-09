@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router";
 import { api } from "../components/features/api";
 import { useResource } from "../common/useResource";
@@ -19,14 +19,17 @@ export default function SubmitWork() {
   const draft = (field(state.data?.[1], "draft") ||
     state.data?.[1] ||
     {}) as Record<string, unknown>;
-  const [content, setContent] = useState("");
+  const [editedContent, setEditedContent] = useState<{
+    assignmentId: string;
+    content: string;
+  } | null>(null);
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
   const navigate = useNavigate();
   const assignment = state.data?.[0] || {};
-  useEffect(() => {
-    setContent(text(field(draft, "content", "body")));
-  }, [state.data]);
+  const content = editedContent?.assignmentId === id
+    ? editedContent.content
+    : text(field(draft, "content", "body"));
   async function save(submit: boolean) {
     if (!id) return;
     setBusy(true);
@@ -74,7 +77,7 @@ export default function SubmitWork() {
             label="Your response"
             rows={14}
             value={content}
-            onChange={(e) => setContent(e.target.value)}
+            onChange={(e) => setEditedContent({ assignmentId: id, content: e.target.value })}
             placeholder="Write your response here…"
           />
           {message && (

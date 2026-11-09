@@ -60,7 +60,7 @@ export default function Announcements() {
             <div className="flex flex-wrap items-center gap-2">
               <Badge>
                 {text(
-                  field(item, "courseName", "course_name"),
+                  field(item, "courseName", "course_name", "courseCode", "course_code"),
                   "Campus announcement",
                 )}
               </Badge>
@@ -106,7 +106,7 @@ export default function Announcements() {
                     to={"/announcements/" + key}
                     title={text(field(a, "title"), "Campus announcement")}
                     description={text(
-                      field(a, "courseName", "course_name", "body", "content"),
+                      field(a, "courseName", "course_name", "courseCode", "course_code", "body", "content"),
                       "Announcement details",
                     )}
                     meta={

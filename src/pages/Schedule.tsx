@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { CalendarDays, ChevronLeft, ChevronRight, Download, Users } from 'lucide-react';
 import { api } from '../components/features/api';
 import { useResource } from '../common/useResource';
@@ -6,7 +6,6 @@ import { Page } from '../common/Page';
 import { ResourceState } from '../common/ResourceState';
 import { Card, EmptyState } from '../ui/Ui';
 import { field, rows, text, time, type Row } from '../lib/api';
-import { demoSessions, enableDemoMode } from '../demo/data';
 
 const weekdays = [
   { dayIndex: 1, short: 'MON', name: 'Monday' },
@@ -65,24 +64,23 @@ function localCalendarDate(date: Date) {
 
 export default function Schedule() {
   const state = useResource(() => api.schedule(), []);
-  const receivedSessions = rows(state.data);
-  const showDemoSchedule = !state.loading && !state.error && receivedSessions.length === 0;
-  const sessions: Row[] = showDemoSchedule ? demoSessions : receivedSessions;
-  const demoScheduleActive = showDemoSchedule || sessions.some((session) => text(field(session, 'id')).startsWith('demo-'));
+  const sessions: Row[] = rows(state.data);
   const [weekOffset, setWeekOffset] = useState(0);
   const [view, setView] = useState<'week' | 'list'>('week');
   const [courseFilter, setCourseFilter] = useState('all');
   const today = new Date();
   const todayIndex = today.getDay();
+  const todayYear = today.getFullYear();
+  const todayMonth = today.getMonth();
+  const todayDate = today.getDate();
   const [selectedDay, setSelectedDay] = useState(todayIndex >= 1 && todayIndex <= 5 ? todayIndex : 1);
 
-  useEffect(() => {
-    if (showDemoSchedule) enableDemoMode();
-  }, [showDemoSchedule]);
-
-  const weekStart = new Date(today);
-  weekStart.setDate(today.getDate() - ((todayIndex + 6) % 7) + weekOffset * 7);
-  weekStart.setHours(0, 0, 0, 0);
+  const weekStart = useMemo(() => {
+    const start = new Date(todayYear, todayMonth, todayDate);
+    start.setDate(todayDate - ((todayIndex + 6) % 7) + weekOffset * 7);
+    start.setHours(0, 0, 0, 0);
+    return start;
+  }, [todayDate, todayIndex, todayMonth, todayYear, weekOffset]);
   const weekEnd = addDays(weekStart, 4);
   const weekLabel = formatRange(weekStart, weekEnd);
 
@@ -107,7 +105,7 @@ export default function Schedule() {
     sessions: filteredSessions
       .filter((session) => Number(field(session, 'dayOfWeek', 'day_of_week')) === day.dayIndex)
       .sort((a, b) => minutesOf(field(a, 'startTime', 'start_time')) - minutesOf(field(b, 'startTime', 'start_time'))),
-  })), [filteredSessions, weekOffset]);
+  })), [filteredSessions, weekStart]);
 
   const classTimes = filteredSessions.flatMap((session) => [
     minutesOf(field(session, 'startTime', 'start_time')),
@@ -231,7 +229,7 @@ export default function Schedule() {
       description="Plan your week, one class at a time. All times shown in Philippine Standard Time."
       actions={<button type="button" onClick={downloadWeek} disabled={!filteredSessions.length} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-md border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"><Download size={14} aria-hidden="true" />Download schedule</button>}
     >
-      <ResourceState loading={state.loading} error={state.error} />
+      <ResourceState loading={state.loading} error={state.error} variant="calendar" />
       {!state.loading && !state.error && (sessions.length ? (
         <>
           <div className="mb-4 flex flex-col gap-3 p-3 sm:flex-row sm:items-center sm:justify-between sm:p-3.5">
@@ -254,8 +252,6 @@ export default function Schedule() {
               </select>
             </div>
           </div>
-
-          {demoScheduleActive && <div className="mb-3 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-[11px] font-medium text-amber-800">Demo schedule preview — sample classes are not saved to your campus account.</div>}
 
           {view === 'week' ? <>
             <div className="hidden md:block">{renderCalendar(daySessions)}</div>

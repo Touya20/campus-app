@@ -33,7 +33,7 @@ export default function Dashboard() {
         </Link>
       }
     >
-      <ResourceState loading={state.loading} error={state.error} />
+      <ResourceState loading={state.loading} error={state.error} variant="dashboard" />
       {!state.loading && !state.error && (
         <>
           <section className="rounded-xl bg-[#2b5078] p-6 text-white sm:p-8">
@@ -146,7 +146,7 @@ export default function Dashboard() {
                           "Assignment",
                         )}
                         description={text(
-                          field(item, "courseName", "course_name"),
+                          field(item, "courseName", "course_name", "courseCode", "course_code"),
                           "Assignment deadline",
                         )}
                         meta={date(field(item, "dueAt", "due_at"))}
@@ -186,7 +186,7 @@ export default function Dashboard() {
                         }
                         title={text(field(item, "title"), "Campus update")}
                         description={text(
-                          field(item, "courseName", "course_name"),
+                          field(item, "courseName", "course_name", "courseCode", "course_code"),
                           "Campus announcement",
                         )}
                         meta={

@@ -6,7 +6,7 @@ export class ApiError extends Error {
 }
 export const setAccessToken = (value) => { accessToken = value }
 export const getCampusTimeZone = () => timeZone || 'Asia/Manila'
-const baseURL = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:7000/api/v1').replace(/\/+$/, '')
+const baseURL = (import.meta.env.VITE_API_BASE_URL || '/api/v1').replace(/\/+$/, '')
 const client = axios.create({ baseURL, timeout: 12000, headers: { Accept: 'application/json' } })
 client.interceptors.request.use((config) => {
   if (accessToken) config.headers.Authorization = 'Bearer ' + accessToken
@@ -21,7 +21,7 @@ export async function request(path, init = {}) {
   const headers = {}
   new Headers(init.headers).forEach((value, key) => { headers[key] = value })
   try {
-    const response = await client.request({ url: path, method: init.method || 'GET', headers, data: init.body ? JSON.parse(String(init.body)) : undefined, signal: init.signal || undefined })
+    const response = await client.request({ url: path, method: init.method || 'GET', headers, data: init.body == null ? undefined : (typeof init.body === 'string' ? JSON.parse(init.body) : init.body), signal: init.signal || undefined, timeout: init.timeoutMs || 12000 })
     const body = response.data
     const envelope = body && typeof body === 'object' ? body : {}
     if (envelope.meta && typeof envelope.meta === 'object' && typeof envelope.meta.timeZone === 'string') timeZone = envelope.meta.timeZone

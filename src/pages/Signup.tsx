@@ -63,11 +63,11 @@ export default function Signup() {
               placeholder="Your full name"
             />
             <Field
-              label="Institutional email"
+              label="Email"
               name="email"
               type="email"
               required
-              placeholder="you@campus.edu.ph"
+              placeholder="you@example.com"
             />
             <Field
               label="Password (at least 12 characters)"

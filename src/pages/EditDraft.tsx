@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link, useSearchParams } from "react-router";
 import { api } from "../components/features/api";
 import { useResource } from "../common/useResource";
@@ -16,32 +16,29 @@ export default function EditDraft() {
         : Promise.reject(new Error("Select an assignment to open its draft.")),
     [assignmentId],
   );
-  const [draftId, setDraftId] = useState("");
-  const [content, setContent] = useState("");
+  const draft = (field(state.data, "draft") || state.data || {}) as Record<
+    string,
+    unknown
+  >;
+  const draftId = text(field(draft, "id", "draftId", "draft_id"));
+  const [editedContent, setEditedContent] = useState<{
+    assignmentId: string;
+    content: string;
+  } | null>(null);
+  const content = editedContent?.assignmentId === assignmentId
+    ? editedContent.content
+    : text(field(draft, "content", "body"));
   const [confirm, setConfirm] = useState(false);
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
-  useEffect(() => {
-    const value = (field(state.data, "draft") || state.data || {}) as Record<
-      string,
-      unknown
-    >;
-    setDraftId(text(field(value, "id", "draftId", "draft_id")));
-    setContent(text(field(value, "content", "body")));
-  }, [state.data]);
   async function save() {
     setBusy(true);
     try {
       if (draftId) await api.updateDraft(draftId, content);
       else {
         await api.saveDraft(assignmentId, content);
-        const fresh = await api.draft(assignmentId);
-        const value = (field(fresh, "draft") || fresh) as Record<
-          string,
-          unknown
-        >;
-        setDraftId(text(field(value, "id", "draftId", "draft_id")));
       }
+      state.reload();
       setMessage("Draft saved.");
     } catch (reason) {
       setMessage(
@@ -60,8 +57,8 @@ export default function EditDraft() {
     setBusy(true);
     try {
       await api.deleteDraft(draftId);
-      setDraftId("");
-      setContent("");
+      setEditedContent({ assignmentId, content: "" });
+      state.reload();
       setConfirm(false);
       setMessage("Draft deleted.");
     } catch (reason) {
@@ -92,7 +89,7 @@ export default function EditDraft() {
             label="Draft response"
             rows={14}
             value={content}
-            onChange={(e) => setContent(e.target.value)}
+            onChange={(e) => setEditedContent({ assignmentId, content: e.target.value })}
             placeholder="Your saved response…"
           />
           {message && (
